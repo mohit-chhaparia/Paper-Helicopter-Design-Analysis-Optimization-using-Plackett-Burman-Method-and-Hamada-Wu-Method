@@ -1,0 +1,105 @@
+---
+title: "Data Analysis - 616 - Project"
+author: "Mohit Deepak Chhaparia"
+date: "4/30/2021"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r}
+library(readxl)
+Effects <- read_excel("/Users/mohitdeepakchhaparia/Documents/ISEN 616/Project/Effects.xlsx")
+attach(Effects)
+
+library(faraway)
+halfnorm(`Main Effect Ybar (Main)`, nlab = 11, labs = as.character(`Name (Main)`), ylab = "Sorted Data")
+```
+
+From the above analysis, we conclude that the Main Effect A is significant.
+
+```{r}
+library(olsrr)
+fit.A <- lm(Ybar ~ A + AB + AC + AD + AE + AF, data = Effects)
+ols_step_both_p(fit.A, pent = 0.05)
+
+fit.B <- lm(Ybar ~ B + AB + BC + BD + BE + BF, data = Effects)
+ols_step_both_p(fit.B, pent = 0.05)
+
+fit.C <- lm(Ybar ~ C + AC + BC + CD + CE + CF, data = Effects)
+ols_step_both_p(fit.C, pent = 0.05)
+
+fit.D <- lm(Ybar ~ D + AD + BD + CD + DE + DF, data = Effects)
+ols_step_both_p(fit.D, pent = 0.05)
+
+fit.E <- lm(Ybar ~ E + AE + BE + CE + DE + EF, data = Effects)
+ols_step_both_p(fit.E, pent = 0.05)
+
+fit.F <- lm(Ybar ~ F + AF + BF + CF + DF + EF, data = Effects)
+ols_step_both_p(fit.F, pent = 0.05)
+```
+
+Based on the above analysis, we found that the 2fi AB, AF, AD, CF, and DE are significant. Using these 5 2fi and the 6 Main Effects, we will apply stepwise regression
+
+```{r}
+newfit <- lm(Ybar ~ A + B + C + D + E + F + AB + CF + DE, data = Effects)
+ols_step_both_p(newfit, pent = 0.065)
+```
+
+Now we'll conduct the same steps as above for Dispersion Effects:
+
+```{r}
+halfnorm(`Main Effect ln (s^2) (Main)`, nlab = 11, labs = as.character(`Name (Main)`), ylab = "Sorted Data")
+```
+
+From the above analysis, we conclude that only the Main Effect D is significant.
+
+```{r}
+fit.A <- lm(lnssq  ~ A + AB + AC + AD + AE + AF, data = Effects)
+ols_step_both_p(fit.A, pent = 0.05)
+
+fit.B <- lm(lnssq ~ B + AB + BC + BD + BE + BF, data = Effects)
+ols_step_both_p(fit.B, pent = 0.05)
+
+fit.C <- lm(lnssq ~ C + AC + BC + CD + CE + CF, data = Effects)
+ols_step_both_p(fit.C, pent = 0.05)
+
+fit.D <- lm(lnssq ~ D + AD + BD + CD + DE + DF, data = Effects)
+ols_step_both_p(fit.D, pent = 0.05)
+
+fit.E <- lm(lnssq ~ E + AE + BE + CE + DE + EF, data = Effects)
+ols_step_both_p(fit.E, pent = 0.05)
+
+fit.F <- lm(lnssq ~ F + AF + BF + CF + DF + EF, data = Effects)
+ols_step_both_p(fit.F, pent = 0.05)
+```
+
+From the above analysis, we conclude that the 2fi AE, BE, and CF are significant.
+
+```{r}
+newfit <- lm(lnssq ~ A + B + C + D + E + F + AE + BE + CF, data = Effects)
+ols_step_both_p(newfit, pent = 0.065)
+```
+
+From the above stepwise regression, the 2fi CF is found significant.But by Effect Heredity Principle, we remove all the 2fi's for which none of the parent Main Effect is significant. Now we'll conduct the above step after removing CF.
+
+```{r}
+newfit <- lm(lnssq ~ A + B + C + D + E + F + AE + BE, data = Effects)
+ols_step_both_p(newfit, pent = 0.065)
+```
+
+From the above stepwise regression, the 2fi AE is found significant.But by Effect Heredity Principle, we remove all the 2fi's for which none of the parent Main Effect is significant. Now we'll conduct the above step after removing AE, and CF (from the previous step).
+
+```{r}
+newfit <- lm(lnssq ~ A + B + C + D + E + F + BE, data = Effects)
+ols_step_both_p(newfit, pent = 0.065)
+```
+
+From the above stepwise regression, the 2fi BE is found significant.But by Effect Heredity Principle, we remove all the 2fi's for which none of the parent Main Effect is significant. Now we'll conduct the above step after removing AE, BE, and CF (from the previous step).
+
+```{r}
+newfit <- lm(lnssq ~ A + B + C + D + E + F, data = Effects)
+ols_step_both_p(newfit, pent = 0.065)
+```
+
+The final significant factor for the dispersion model is only D.
